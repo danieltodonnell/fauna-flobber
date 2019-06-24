@@ -8,41 +8,21 @@ function Uploader() {
   const canvasRef = useRef(null)
   const imageRef = useRef(null)
 
-  useEffect(
-    () => {
-      if (canvasRef.current && imgData) {
-        //var ctx = canvasRef.current.getContext('2d')
-        //var buffer = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data.buffer
-        //var array = new Uint8ClampedArray(imgData)
-        //debugger
-        //var image = new ImageData(array, 720, 720)//ctx.canvas.width, ctx.canvas.height)
-
-        /*var width = 720, height = 720;
-        var data = new ImageData(
-          new Uint8ClampedArray(4 * width * height),
-          720,
-          720
-        )*/
-
-        //ctx.putImageData(image, 0, 0)
-      }
-    }, [canvasRef, imgData]
-  )
-
   function readFile(event) {
     getFile().then(file => {
       const reader = new FileReader()
       reader.onload = function(e) { 
-	      /*const result = e.target.result
-        const u8 = new Uint8ClampedArray(result)
-        const blob = new Blob(u8, { type: 'image/jpg'})
-        const url = URL.createObjectURL(blob)
-        //setImgData(result)
-        debugger
-        imageRef.current.src = url*/
-        imageRef.current.src = e.target.result
+	      const result = e.target.result
+        // Obtain a blob: URL for the image data.
+        var arrayBufferView = new Uint8Array( result )
+        var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } )
+        var urlCreator = window.URL || window.webkitURL
+        var imageUrl = urlCreator.createObjectURL( blob )
+        imageRef.current.src = imageUrl
+        // free memory
+        urlCreator.revokeObjectURL( blob )
       }
-      reader.readAsDataURL(file)//readAsArrayBuffer(file)
+      reader.readAsArrayBuffer(file)
     })
   }
 
@@ -50,7 +30,7 @@ function Uploader() {
     <div className="uploader">
       <button onClick={readFile}>Upload File</button>
       <canvas ref={canvasRef} />
-      <img ref={imageRef} />
+      <img ref={imageRef} alt="preview of upload" />
     </div>
   )
 }
