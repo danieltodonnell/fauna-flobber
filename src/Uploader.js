@@ -8,6 +8,21 @@ function Uploader() {
   const canvasRef = useRef(null)
   const imageRef = useRef(null)
 
+  useEffect(
+    () => {
+      if (imageRef.current && imgData) {
+        // blob it
+        var blob = new Blob( [ imgData ], { type: "image/jpeg" } )
+        var urlCreator = window.URL || window.webkitURL
+        var imageUrl = urlCreator.createObjectURL( blob )
+        imageRef.current.src = imageUrl
+        // free memory
+        urlCreator.revokeObjectURL( blob )
+      }
+
+    }, [imageRef, imgData]
+  )
+
   function readFile(event) {
     getFile().then(file => {
       const reader = new FileReader()
@@ -15,12 +30,8 @@ function Uploader() {
 	      const result = e.target.result
         // Obtain a blob: URL for the image data.
         var arrayBufferView = new Uint8Array( result )
-        var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } )
-        var urlCreator = window.URL || window.webkitURL
-        var imageUrl = urlCreator.createObjectURL( blob )
-        imageRef.current.src = imageUrl
-        // free memory
-        urlCreator.revokeObjectURL( blob )
+        // write to state
+        setImgData(arrayBufferView)
       }
       reader.readAsArrayBuffer(file)
     })
@@ -30,7 +41,7 @@ function Uploader() {
     <div className="uploader">
       <button onClick={readFile}>Upload File</button>
       <canvas ref={canvasRef} />
-      <img ref={imageRef} alt="preview of upload" />
+      <img ref={imageRef} alt="" />
     </div>
   )
 }
